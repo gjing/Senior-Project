@@ -1,0 +1,9 @@
+# Change Log
+
+## [0.1.0] - 2015-05-06
+### Added
+ - Everything I have right now
+ - Decided to maintain a changelog
+ - liveGPS is the current project
+ - trying to figure out how to continuously poll for GPS data
+ - rudimentary LinkedList built
