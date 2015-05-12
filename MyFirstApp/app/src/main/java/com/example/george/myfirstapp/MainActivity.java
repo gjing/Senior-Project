@@ -1,51 +1,68 @@
 package com.example.george.myfirstapp;
 
-import android.support.v7.app.ActionBarActivity;
+import java.io.IOException;
+
+import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.content.Intent;
-import android.view.View;
-import android.widget.EditText;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
-
-public class MainActivity extends ActionBarActivity {
-    public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
-
+public class BusAppActivity extends Activity {
+    /** Called when the activity is first created. */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main);
+        /* Use the LocationManager class to obtain GPS locations */
+        LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locListener = new MyLocationListener();
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
     }
 
+   /* To test in the emulator, use the telnet commands:
+    * telnet localhost 5554
+    * geo fix 30.0 30.0 */
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    /* Class My Location Listener */
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public class MyLocationListener implements LocationListener
+    {
+        TextView tv = (TextView) findViewById(R.id.textview);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        @Override
+        public void onLocationChanged(Location loc){
+            Log.d("tag", "Finding Latitude");
+            double lat = loc.getLatitude();
+            Log.d("tag", "Lat: "+String.valueOf(lat));
+            Log.d("tag", "Finding Longitude");
+            double lon = loc.getLongitude();
+            Log.d("tag", "Lon: "+String.valueOf(lon));
+            String Text = "My current location is: " +
+                    "\nLatitude = " + lat +
+                    "\nLongitude = " + lon;
+
+            // Display location
+            tv.setText(Text);
         }
 
-        return super.onOptionsItemSelected(item);
-    }
+        @Override
+        public void onProviderDisabled(String provider){
+            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
+        }
 
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        @Override
+        public void onProviderEnabled(String provider){
+            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras){
+
+        }
     }
 }

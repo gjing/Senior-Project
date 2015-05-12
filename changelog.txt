@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.0] - 2015-05-11
+### Removed
+ - Old code that didn't work (GPS updates were tied to UI thread or something)
+### Added
+ - copied code from http://stackoverflow.com/questions/8235385/display-gps-location-on-screen-android
+ - adapted to my xml stuff
+ - implemented a time tracker
+
 ## [0.1.0] - 2015-05-06
 ### Added
  - Everything I have right now

@@ -7,11 +7,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.logging.Handler;
@@ -31,54 +33,52 @@ public class GPS extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps);
-        RelativeLayout touch = (RelativeLayout) findViewById(R.id.touch);
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        personText = (TextView) findViewById(R.id.person);
-        locationText = (TextView) findViewById(R.id.quote);
-        list = new LinkedList();
-        touch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GPSnow.run();
-            }
-        });
+        /* Use the LocationManager class to obtain GPS locations */
+        LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locListener = new MyLocationListener();
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
     }
 
+    public class MyLocationListener implements LocationListener {
+        TextView tv = (TextView) findViewById(R.id.quote);
+        TextView time = (TextView) findViewById(R.id.person);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_g, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        @Override
+        public void onLocationChanged(Location loc) {
+            Log.d("tag", "Finding Latitude");
+            double lat = loc.getLatitude();
+            Log.d("tag", "Lat: " + String.valueOf(lat));
+            Log.d("tag", "Finding Longitude");
+            double lon = loc.getLongitude();
+            Log.d("tag", "Lon: " + String.valueOf(lon));
+            Log.d("tag", "Finding Time");
+            long t = loc.getTime();
+            Log.d("tag", "Time: " + String.valueOf(t));
+            String Text = "My current location is: " +
+                    "\nLatitude = " + lat +
+                    "\nLongitude = " + lon;
+            String count = "Time: "+t;
+            // Display location
+            tv.setText(Text);
+            time.setText(count);
         }
 
-        return super.onOptionsItemSelected(item);
-    }
-
-    private Runnable GPSnow = new Runnable() {
-        public void run() {
-            String locationProvider = LocationManager.NETWORK_PROVIDER;
-            EasyLocation loc = new EasyLocation(locationManager);
-            timeInMilliseconds = loc.getTime();
-            alt = loc.getAltitude();
-            longitude = loc.getLongitude();
-            latitude = loc.getLatitude();
-            locationText.setText(alt + "\n" + longitude + "\n" + latitude);
-            personText.setText(Long.toString(timeInMilliseconds));
+        @Override
+        public void onProviderDisabled(String provider) {
+            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
         }
-    };
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+    }
 }

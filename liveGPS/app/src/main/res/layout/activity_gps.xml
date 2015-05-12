@@ -10,7 +10,7 @@
     android:id="@+id/touch">
 
     <TextView
-        android:text="Tap the screen to begin"
+        android:text=""
         android:id="@+id/quote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
