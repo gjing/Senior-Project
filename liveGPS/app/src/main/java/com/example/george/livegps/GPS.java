@@ -48,6 +48,12 @@ public class GPS extends Activity {
 
         @Override
         public void onLocationChanged(Location loc) {
+            Log.d("tag", "Finding Altitude");
+            double alt = loc.getAltitude();
+            Log.d("tag", "Alt: " + String.valueOf(alt));
+            Log.d("tag", "Finding Velocity");
+            double v = loc.getSpeed();
+            Log.d("tag", "Speed: " + String.valueOf(v));
             Log.d("tag", "Finding Latitude");
             double lat = loc.getLatitude();
             Log.d("tag", "Lat: " + String.valueOf(lat));
@@ -59,7 +65,9 @@ public class GPS extends Activity {
             Log.d("tag", "Time: " + String.valueOf(t));
             String Text = "My current location is: " +
                     "\nLatitude = " + lat +
-                    "\nLongitude = " + lon;
+                    "\nLongitude = " + lon +
+                    "\nAltitude = " + alt +
+                    "\nVelocity = " + v;
             String count = "Time: "+t;
             // Display location
             tv.setText(Text);

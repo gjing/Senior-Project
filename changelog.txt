@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.2.1] - 2015-05-17
+### Added
+ - implemented velocity and height tracking
+
 ## [0.2.0] - 2015-05-11
 ### Removed
  - Old code that didn't work (GPS updates were tied to UI thread or something)
