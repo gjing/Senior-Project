@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.2.2] - 2015-05-17
+### Removed
+ - Independent Lat/Long/Velocity/height tracking
+### Added
+ - relative height display, time elapsed, and velocity calculated from x/y/z
+
 ## [0.2.1] - 2015-05-17
 ### Added
  - implemented velocity and height tracking
