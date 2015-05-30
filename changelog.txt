@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.2.3] - 2015-05-17
+### Removed
+ - unnecessary classes
+### Added
+ - gravitational redshift/relativistic time saving added
+
 ## [0.2.2] - 2015-05-17
 ### Removed
  - Independent Lat/Long/Velocity/height tracking

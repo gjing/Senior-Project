@@ -25,14 +25,10 @@ public class GPS extends Activity {
     private long timeInMilliseconds;
     private double ialt;
     private double initalt;
-    private double ilongitude;
-    private double ilatitude;
     private long itime;
     private TextView personText;
     private TextView locationText;
     private LocationManager locationManager;
-    private LinkedList list;
-    private double erad = 6371000.0;
     private double c = 300000000.0;
 
     @Override
@@ -49,39 +45,45 @@ public class GPS extends Activity {
     public class MyLocationListener implements LocationListener {
         TextView tv = (TextView) findViewById(R.id.quote);
         TextView time = (TextView) findViewById(R.id.person);
-        private double alt;
         private long t;
-        private long elapsed = 0;
+        private long elapsed;
         private boolean started = false;
+        private double saved;
+        private double ialt;
+        private double ilat;
+        private double ilong;
 
         @Override
         public void onLocationChanged(Location loc) {
             if (!started) {
                 ialt = loc.getAltitude();
-                initalt = loc.getAltitude();
-                ilatitude = loc.getLatitude();
-                ilongitude = loc.getLongitude();
-                itime = loc.getTime();
-                t = itime;
-                elapsed = itime;
+                initalt = ialt;
+                itime = System.nanoTime();
+                t = 0;
                 started = true;
+                ilong = loc.getLongitude();
+                ilat = loc.getLatitude();
             }
             else {
-                alt = loc.getAltitude() - initalt;
-                double latitude = loc.getLatitude() - ilatitude;
-                ilatitude = ilatitude - latitude;
-                double longitude = loc.getLongitude() - ilongitude;
-                ilongitude = ilongitude - longitude;
-                double altitude = loc.getAltitude() - ialt;
-                ialt = ialt - altitude;
-                t = loc.getTime() - elapsed;
-                elapsed = loc.getTime() - itime;
-                time.setText("Time Elapsed: " + elapsed/1000);
-                double x = Math.abs(latitude * erad / 360);
-                double y = Math.abs(longitude*erad/360);
-                double z = Math.abs(altitude);
-                double v = Math.sqrt(x*x + y*y + z*z)/t;
-                tv.setText("Velocity: "+v + ", Redshift: " + alt);
+                double altitude = loc.getAltitude() - initalt;
+                long temp_t = System.nanoTime();
+                t = temp_t - elapsed;
+                elapsed = temp_t - itime;
+                time.setText("Time Elapsed: " + elapsed +"ns");
+                double cur_long = loc.getLongitude();
+                double cur_lat = loc.getLatitude();
+                double cur_alt = loc.getAltitude();
+                double v_alt = (cur_alt-ialt)/t;
+                double v_long = distance(cur_long, ilong)/t;
+                double v_lat = distance(cur_lat, ilat)/t;
+                boolean east = v_long >=0;
+                ilong = cur_long;
+                ilat = cur_lat;
+                ialt = cur_alt;
+                double speed = Math.sqrt(v_alt*v_alt + v_long*v_long + v_lat*v_lat);
+                double s = t*saved(v_long, v_lat, v_alt, altitude, cur_lat, east);
+                s = t - s;
+                tv.setText("Velocity: "+speed + "\n Redshift: " + altitude +"\n" + "Relative time saved: " + s);
             }
         }
 
@@ -99,5 +101,28 @@ public class GPS extends Activity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
+    }
+
+    double distance(double a, double b) {
+        double M_PI = Math.PI;
+        // Convert degrees to radians
+        double r = 6378100;
+        double c = a-b;
+        return c*M_PI*r/180;
+    }
+
+    double saved(double vx, double vy, double vz, double alt, double lat, boolean east) {
+        double vE = 464*Math.sin(lat*Math.PI/180);
+        double ratio = 1+9.8*alt/(c*c);
+        double vgz = vz*vz/(2*c*c);
+        double vgy = vy*vy/(2*c*c);
+        double vgx;
+        if (east) {
+            vgx = vx*(vx+vE)/(2*c*c);
+        }
+        else {
+            vgx = vx*(vx-vE)/(2*c*c);
+        }
+        return ratio - vgx - vgy - vgz;
     }
 }
