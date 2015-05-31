@@ -63,6 +63,7 @@ public class GPS extends Activity {
                 started = true;
                 ilong = loc.getLongitude();
                 ilat = loc.getLatitude();
+                saved = 0;
             }
             else {
                 double altitude = loc.getAltitude() - initalt;
@@ -70,20 +71,20 @@ public class GPS extends Activity {
                 t = temp_t - elapsed;
                 elapsed = temp_t - itime;
                 time.setText("Time Elapsed: " + elapsed +"ns");
-                double cur_long = loc.getLongitude();
                 double cur_lat = loc.getLatitude();
                 double cur_alt = loc.getAltitude();
+                double xyspeed = loc.getSpeed();
+                double bearing = loc.getBearing();
+                double v_x = xyspeed*Math.sin(bearing*Math.PI/180);
+                double v_y = xyspeed*Math.cos(bearing*Math.PI/180);
                 double v_alt = (cur_alt-ialt)/t;
-                double v_long = distance(cur_long, ilong)/t;
-                double v_lat = distance(cur_lat, ilat)/t;
-                boolean east = v_long >=0;
-                ilong = cur_long;
-                ilat = cur_lat;
+                boolean east = v_x >=0;
                 ialt = cur_alt;
-                double speed = Math.sqrt(v_alt*v_alt + v_long*v_long + v_lat*v_lat);
-                double s = t*saved(v_long, v_lat, v_alt, altitude, cur_lat, east);
-                s = t - s;
-                tv.setText("Velocity: "+speed + "\n Redshift: " + altitude +"\n" + "Relative time saved: " + s);
+                double speed = Math.sqrt(v_alt*v_alt + v_x*v_x + v_y*v_y);
+                double time_e = t/saved(v_x, v_y, v_alt, altitude, cur_lat, east);
+                time_e -= t;
+                saved += time_e;
+                tv.setText("Velocity: "+speed + "m/s\n Redshift: " + altitude +"m\n" + "Relative time saved: " + saved + "ns");
             }
         }
 
@@ -103,17 +104,9 @@ public class GPS extends Activity {
         }
     }
 
-    double distance(double a, double b) {
-        double M_PI = Math.PI;
-        // Convert degrees to radians
-        double r = 6378100;
-        double c = a-b;
-        return c*M_PI*r/180;
-    }
-
     double saved(double vx, double vy, double vz, double alt, double lat, boolean east) {
-        double vE = 464*Math.sin(lat*Math.PI/180);
-        double ratio = 1+9.8*alt/(c*c);
+        double vE = 2*465.1*Math.sin(lat*Math.PI/180);
+        double ratio = 9.8*alt/(c*c);
         double vgz = vz*vz/(2*c*c);
         double vgy = vy*vy/(2*c*c);
         double vgx;
@@ -123,6 +116,6 @@ public class GPS extends Activity {
         else {
             vgx = vx*(vx-vE)/(2*c*c);
         }
-        return ratio - vgx - vgy - vgz;
+        return 1+ratio - vgx - vgy - vgz;
     }
 }
