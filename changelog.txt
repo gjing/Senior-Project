@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.0] - 2015-05-17
+### Changed
+ - Speed of light adjusted to 30,000 m/s
+ - Velocity of earth calculation fixed from a sin function to a cos function
+### Removed
+ - Other projects
+
 ## [1.0.0] - 2015-05-17
 ### Removed
  - unnecessary variables

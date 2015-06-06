@@ -29,7 +29,7 @@ public class GPS extends Activity {
     private TextView personText;
     private TextView locationText;
     private LocationManager locationManager;
-    private double c = 300000000.0;
+    private double c = 30000.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +49,6 @@ public class GPS extends Activity {
         private long elapsed;
         private boolean started = false;
         private double saved;
-        private double ialt;
-        private double ilat;
-        private double ilong;
 
         @Override
         public void onLocationChanged(Location loc) {
@@ -61,8 +58,6 @@ public class GPS extends Activity {
                 itime = System.nanoTime();
                 t = 0;
                 started = true;
-                ilong = loc.getLongitude();
-                ilat = loc.getLatitude();
                 saved = 0;
             }
             else {
@@ -75,16 +70,15 @@ public class GPS extends Activity {
                 double cur_alt = loc.getAltitude();
                 double xyspeed = loc.getSpeed();
                 double bearing = loc.getBearing();
-                double v_x = xyspeed*Math.sin(bearing*Math.PI/180);
+                double v_x = xyspeed*Math.sin(bearing * Math.PI / 180);
                 double v_y = xyspeed*Math.cos(bearing*Math.PI/180);
                 double v_alt = (cur_alt-ialt)/t;
                 boolean east = v_x >=0;
                 ialt = cur_alt;
-                double speed = Math.sqrt(v_alt*v_alt + v_x*v_x + v_y*v_y);
                 double time_e = t/saved(v_x, v_y, v_alt, altitude, cur_lat, east);
                 time_e -= t;
                 saved += time_e;
-                tv.setText("Velocity: "+speed + "m/s\n Redshift: " + altitude +"m\n" + "Relative time saved: " + saved + "ns");
+                tv.setText("Velocity in x: "+v_x + "m/s\nVelocity in y: " + v_y + "m/s\nVelocity in z: " + v_alt + "m/s\nAltitude: " + altitude +"m\n" + "Relative time saved: " + saved + "ns");
             }
         }
 
@@ -105,8 +99,8 @@ public class GPS extends Activity {
     }
 
     double saved(double vx, double vy, double vz, double alt, double lat, boolean east) {
-        double vE = 2*465.1*Math.sin(lat*Math.PI/180);
-        double ratio = 9.8*alt/(c*c);
+        double vE = 2*465.1*Math.cos(lat*Math.PI/180);
+        double redshift = 9.8*alt/(c*c);
         double vgz = vz*vz/(2*c*c);
         double vgy = vy*vy/(2*c*c);
         double vgx;
@@ -116,6 +110,8 @@ public class GPS extends Activity {
         else {
             vgx = vx*(vx-vE)/(2*c*c);
         }
-        return 1+ratio - vgx - vgy - vgz;
+        double ratio = 1 + redshift - vgx - vgy - vgz;
+        System.out.println(redshift + " " + alt + " " + ratio);
+        return ratio;
     }
 }
