@@ -52,6 +52,9 @@ public class GPS extends Activity {
 
         @Override
         public void onLocationChanged(Location loc) {
+            /*
+             * initialize variables during first run
+             */
             if (!started) {
                 ialt = loc.getAltitude();
                 initalt = ialt;
@@ -60,11 +63,14 @@ public class GPS extends Activity {
                 started = true;
                 saved = 0;
             }
+            /*
+             * update variables every cycle
+             */
             else {
                 double altitude = loc.getAltitude() - initalt;
                 long temp_t = System.nanoTime();
-                t = temp_t - elapsed;
                 elapsed = temp_t - itime;
+                t = temp_t - elapsed;
                 time.setText("Time Elapsed: " + elapsed +"ns");
                 double cur_lat = loc.getLatitude();
                 double cur_alt = loc.getAltitude();
@@ -73,9 +79,8 @@ public class GPS extends Activity {
                 double v_x = xyspeed*Math.sin(bearing * Math.PI / 180);
                 double v_y = xyspeed*Math.cos(bearing*Math.PI/180);
                 double v_alt = (cur_alt-ialt)/t;
-                boolean east = v_x >=0;
                 ialt = cur_alt;
-                double time_e = t/saved(v_x, v_y, v_alt, altitude, cur_lat, east);
+                double time_e = t/saved(v_x, v_y, v_alt, altitude, cur_lat);
                 time_e -= t;
                 saved += time_e;
                 tv.setText("Velocity in x: "+v_x + "m/s\nVelocity in y: " + v_y + "m/s\nVelocity in z: " + v_alt + "m/s\nAltitude: " + altitude +"m\n" + "Relative time saved: " + saved + "ns");
@@ -98,20 +103,19 @@ public class GPS extends Activity {
         }
     }
 
-    double saved(double vx, double vy, double vz, double alt, double lat, boolean east) {
+    /**
+     * @param vx long velocity
+     * @param vy lat velocity
+     * @param vz alt velocity
+     * @param alt altitude relative to starting point
+     * @param lat current latitude
+     * @return the ratio between t_phone and t_earth
+     */
+    double saved(double vx, double vy, double vz, double alt, double lat) {
         double vE = 2*465.1*Math.cos(lat*Math.PI/180);
         double redshift = 9.8*alt/(c*c);
-        double vgz = vz*vz/(2*c*c);
-        double vgy = vy*vy/(2*c*c);
-        double vgx;
-        if (east) {
-            vgx = vx*(vx+vE)/(2*c*c);
-        }
-        else {
-            vgx = vx*(vx-vE)/(2*c*c);
-        }
-        double ratio = 1 + redshift - vgx - vgy - vgz;
-        System.out.println(redshift + " " + alt + " " + ratio);
-        return ratio;
+        double vg = Math.sqrt(vx*vx + vy*vy +vz*vz);
+        double special = (vg*vg + vx*vE)/(2*c*c);
+        return 1 + redshift - special;
     }
 }

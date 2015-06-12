@@ -1,29 +1,35 @@
 # Change Log
 
-## [1.1.0] - 2015-05-17
+## [1.2.0] - 2015-06-12
+### Changed
+ - ratio function corrected
+### Added
+ - comments
+
+## [1.1.0] - 2015-06-06
 ### Changed
  - Speed of light adjusted to 30,000 m/s
  - Velocity of earth calculation fixed from a sin function to a cos function
 ### Removed
  - Other projects
 
-## [1.0.0] - 2015-05-17
+## [1.0.0] - 2015-05-31
 ### Removed
  - unnecessary variables
 
-## [0.2.3] - 2015-05-17
+## [0.2.3] - 2015-05-29
 ### Removed
  - unnecessary classes
 ### Added
  - gravitational redshift/relativistic time saving added
 
-## [0.2.2] - 2015-05-17
+## [0.2.2] - 2015-05-19
 ### Removed
  - Independent Lat/Long/Velocity/height tracking
 ### Added
  - relative height display, time elapsed, and velocity calculated from x/y/z
 
-## [0.2.1] - 2015-05-17
+## [0.2.1] - 2015-05-18
 ### Added
  - implemented velocity and height tracking
 
